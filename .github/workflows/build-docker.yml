@@ -27,7 +27,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/todo-backend:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/todo-backend:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/todo-backend:cache
           cache-to: type=inline
 
@@ -37,6 +37,6 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/todo-frontend:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/todo-frontend:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/todo-frontend:cache
           cache-to: type=inline
