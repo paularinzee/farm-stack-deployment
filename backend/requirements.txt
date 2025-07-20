@@ -1,6 +1,5 @@
-
-fastapi[all]
-uvicorn[standard]
-motor[srv]
-beanie
-aiostream
+fastapi
+uvicorn
+motor
+pydantic
+python-dotenv
