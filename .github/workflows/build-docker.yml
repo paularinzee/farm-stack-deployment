@@ -6,7 +6,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repo
@@ -21,22 +21,72 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Scan Backend Code with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs' # Specify filesystem scan
+          input: './backend' # Path to the backend directory
+          format: 'table'
+          exit-code: '1' # Fail the workflow if vulnerabilities are found
+          severity: 'CRITICAL,HIGH' 
+          
+
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
-          push: true
+          push: false
           tags: ${{ secrets.DOCKER_USERNAME }}/todo-backend:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/todo-backend:cache
-          cache-to: type=inline
+          cache-to: type=inline,mode=max
+
+      - name: Scan Backend Image with Trivy (pre-push)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ secrets.DOCKER_USERNAME }}/todo-backend:latest'
+          format: 'table'
+          exit-code: '1' 
+          severity: 'CRITICAL,HIGH' 
+
+      - name: Push backend image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/todo-backend:latest
+
+          
+      - name: Scan Frontend Code with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs' 
+          input: './frontend' 
+          format: 'table'
+          exit-code: '1' 
+          severity: 'CRITICAL,HIGH' 
+         
 
       - name: Build and push frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
-          push: true
+          push: false
           tags: ${{ secrets.DOCKER_USERNAME }}/todo-frontend:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/todo-frontend:cache
           cache-to: type=inline
+
+
+      - name: Scan Frontend Image with Trivy (pre-push)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ secrets.DOCKER_USERNAME }}/todo-frontend:latest'
+          format: 'table'
+          exit-code: '1' 
+          severity: 'CRITICAL,HIGH' 
+
+      
+      - name: Push frontend image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/todo-frontend:latest
+
+
+    
+      
+
