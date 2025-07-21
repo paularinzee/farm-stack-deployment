@@ -24,10 +24,10 @@ jobs:
       - name: Scan Backend Code with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs' # Specify filesystem scan
-          input: './backend' # Path to the backend directory
+          scan-type: 'fs' 
+          input: './backend' 
           format: 'table'
-          exit-code: '1' # Fail the workflow if vulnerabilities are found
+          exit-code: '1' 
           severity: 'CRITICAL,HIGH' 
           
 
@@ -71,7 +71,7 @@ jobs:
           push: false
           tags: ${{ secrets.DOCKER_USERNAME }}/todo-frontend:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/todo-frontend:cache
-          cache-to: type=inline
+          cache-to: type=inline,mode=max
 
 
       - name: Scan Frontend Image with Trivy (pre-push)
